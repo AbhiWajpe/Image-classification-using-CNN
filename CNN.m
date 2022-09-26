@@ -1,5 +1,6 @@
 %loading this file defines imageset, trueclass, and classlabels
 load('cifar10testdata.mat');
+[pixel_length,pixel_width,RBG,images] = size(imageset);
 
 % figure(1); 
 % hold on;
@@ -16,6 +17,7 @@ load('cifar10testdata.mat');
 
 %loading this file defines filterbanks and biasvectors
 load('CNNparameters.mat');
+
 %sample code to verify which layers have filters and biases
 for d = 1:length(filterbanks)
     filterbank = filterbanks{d};
@@ -51,18 +53,12 @@ classprobvec = squeeze(layerOutput{end});
 fprintf('estimated class is %s with probability %.4f\n',...
     classlabels{maxclass},maxprob);
 
-
-%% 
-allclass = [];
-for i = 1:2000
-    test_data = imageset(:,:,:,i);
-    imagesc(test_data); 
-    imrgb = double(test_data);
-
-    layerOutput = Model(test_data);
-    classprobvec = squeeze(layerOutput{end});
-    [maxprob,maxclass] = max(classprobvec);
-    allclass = [allclass maxprob];
-
-    
+truelabels = [];
+for j = 1:images
+    labels = classlabels(trueclass(j));
+    truelabels = [truelabels labels];
 end
+truelabels = categorical(truelabels)';
+
+% Create the Confusion Matrix 
+cm = confusionmatrix(imageset,truelabels);
